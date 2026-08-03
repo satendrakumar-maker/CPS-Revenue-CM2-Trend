@@ -1,51 +1,81 @@
 # CPS OEM Dashboard
 
-A professional, self-contained HTML dashboard for CPS OEM data visualization.
+Professional dashboard for CPS OEM data — Revenue, CM2, Retail Count, and CM2% trends.
 
-## What's Included
+## What's in This Folder
 
 | File | Purpose |
 |------|---------|
-| `index.html` | **The dashboard** — contains everything (data, styles, charts, logic). Just open in browser or deploy to GitHub Pages. |
-| `data.json` | Data export (for reference / debugging). |
-| `CPS FY 25 26 to Fy 2627.xlsx` | Source Excel file. |
+| `index.html` | **The dashboard** — self-contained, works in any browser |
+| `rebuild.py` | **Python script** — rebuilds `index.html` when Excel data changes |
+| `CPS FY 25 26 to Fy 2627.xlsx` | **Source Excel file** — edit this, then run rebuild.py |
+| `README.md` | This file |
 
-## Deploy to GitHub Pages (3 Steps)
+---
 
-1. **Upload `index.html`** to your GitHub repository root
-2. Go to **Settings → Pages** → Select **Deploy from a branch** → Choose `main` → Folder `/(root)`
-3. Wait 1 minute → Your dashboard is live at:
-   ```
-   https://yourusername.github.io/your-repo-name/
-   ```
+## 🚀 Deploy to GitHub Pages
 
-That's it. Only **one file** needed.
+### Step 1: Create GitHub Repo
+- Go to [github.com/new](https://github.com/new)
+- Name: `cps-oem-dashboard`
+- Make it **Public**
 
-## Dashboard Features
+### Step 2: Upload Files
+Upload **all files in this folder** to your repo:
+- `index.html`
+- `rebuild.py`
+- `CPS FY 25 26 to Fy 2627.xlsx`
+- `README.md`
 
-- **Executive Tab:** 6 KPI cards, Revenue/Retail/CM2/CM2% trends, OEM ranking, stacked charts, summary table
-- **OEM-wise Tab:** 10 OEM selector pills, per-OEM 4 charts, growth comparison
-- **Filters:** FY (Overall / 25-26 / 26-27), OEM, Month, Quarter
-- **Extras:** Dark/Light mode, chart download PNG, export CSV, search table, responsive
+### Step 3: Enable GitHub Pages
+- Settings → Pages
+- Source: **Deploy from a branch**
+- Branch: `main` → folder `/(root)`
+- Save → Wait 1 minute
 
-## Refresh Data After Excel Changes
+**Live URL:** `https://yourusername.github.io/cps-oem-dashboard/`
+
+---
+
+## 🔄 How to Refresh Data (After Excel Changes)
+
+### Method 1: Run rebuild.py (Recommended)
 
 ```bash
-# Step 1: Update your Excel file (same filename)
-# Step 2: Run the rebuild script
-cd "C:\Users\saten\Documents\kimi\workspace"
-python build_standalone.py
+# Navigate to this folder
+cd "C:\Users\saten\Documents\kimi\workspace\CPS_OEM_Dashboard"
 
-# Step 3: Re-upload the new index.html to GitHub
+# Run the rebuild script
+python rebuild.py
 ```
 
-Or manually:
-1. Edit the Excel file
-2. Run `python build_standalone.py` in the workspace folder
-3. The new `index.html` is regenerated with fresh data embedded
-4. Upload `CPS_OEM_Dashboard/index.html` to GitHub (overwrite)
+This reads the Excel file and regenerates `index.html` with fresh data.
 
-## Verified Data
+### Method 2: Manual Steps
+
+1. **Edit the Excel file** (`CPS FY 25 26 to Fy 2627.xlsx`) in Excel
+2. **Save it** in this same folder
+3. **Run:** `python rebuild.py`
+4. **Upload the new `index.html`** to GitHub (overwrite old one)
+5. **Wait 1 minute** → Dashboard updates automatically
+
+---
+
+## 📊 Dashboard Features
+
+| Feature | Description |
+|---------|-------------|
+| **Executive Tab** | 6 KPI cards, Revenue/Retail/CM2/CM2% trends, OEM ranking, stacked chart, summary table |
+| **OEM-wise Tab** | 10 OEM selector pills, per-OEM charts, growth comparison |
+| **Filters** | FY (Overall / 25-26 / 26-27), OEM, Month, Quarter |
+| **Dark/Light Mode** | Toggle with 🌙/☀️ button |
+| **Chart Download** | Click 💾 on any chart to save as PNG |
+| **Export CSV** | Click 📥 Export to download all data |
+| **Search Table** | Type in search box to filter OEMs |
+
+---
+
+## ✅ Verified Data
 
 | Period | Revenue | CM2 | Retail |
 |--------|---------|-----|--------|
@@ -53,12 +83,28 @@ Or manually:
 | FY 26-27 | ₹35,485,022 | ₹10,267,791 | 34,506 |
 | **Overall** | **₹178,017,762** | **₹58,528,506** | **184,617** |
 
-## OEMs
+---
 
-**Original 7:** Bajaj, Chetak, Ather, OLA, TVS (All), Revolt, Jawa
-**Computed 2:** Bajaj + Chetak, TVS ICE (= TVS All − TVS iQube)
-**Subset 1:** TVS iQube (already included in TVS All totals)
+## 🏭 OEMs
 
-## Local Preview
+| OEM | Type |
+|-----|------|
+| Bajaj (Incl. KTM & TRM) | Original |
+| Chetak Only | Original |
+| Ather | Original |
+| OLA Only CPS | Original |
+| TVS: All | Original |
+| Revolt | Original |
+| Jawa (Incl. Manpower) | Original |
+| TVS: Only Iqube | Subset (inside TVS All) |
+| **Bajaj + Chetak** | Computed |
+| **TVS ICE** | Computed (TVS All − TVS iQube) |
 
-Simply double-click `index.html` in File Explorer. It opens in Chrome/Edge and works instantly — no server needed.
+---
+
+## 💡 Tips
+
+- The dashboard is **one file** — `index.html` contains everything
+- Open `index.html` directly in Chrome/Edge to preview locally
+- The 🔄 Refresh button in the dashboard just reloads the page
+- To get **new data**, you must run `python rebuild.py` after editing Excel
