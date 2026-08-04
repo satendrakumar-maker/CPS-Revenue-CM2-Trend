@@ -1448,7 +1448,7 @@ function renderExecKPIs(data) {
   if (months.length === 0) return;
 
   let totalRev = 0, totalCm2 = 0, totalRet = 0;
-  for (const name of TOTAL_OEMS) {
+  for (const name of Object.keys(data.oems)) {
     if (data.oems[name]) {
       totalRev += data.oems[name].revenue.reduce((a,b)=>a+b,0);
       totalCm2 += data.oems[name].cm2.reduce((a,b)=>a+b,0);
@@ -1499,7 +1499,7 @@ function renderRevTrend(data) {
 function renderRetTrend(data) {
   const totalRetail = data.months.map((_, i) => {
     let s = 0;
-    for (const n of TOTAL_OEMS) if (data.oems[n]) s += data.oems[n].retail_count[i] || 0;
+    for (const n of Object.keys(data.oems)) if (data.oems[n]) s += data.oems[n].retail_count[i] || 0;
     return s;
   });
   createChart('retTrendChart', 'bar', { labels: data.months, datasets: [{ label: 'Total Retail', data: totalRetail, backgroundColor: '#f59e0b', borderRadius: 6 }] }, {
@@ -1512,7 +1512,7 @@ function renderRetTrend(data) {
 function renderCM2Trend(data) {
   const totalCm2 = data.months.map((_, i) => {
     let s = 0;
-    for (const n of TOTAL_OEMS) if (data.oems[n]) s += data.oems[n].cm2[i] || 0;
+    for (const n of Object.keys(data.oems)) if (data.oems[n]) s += data.oems[n].cm2[i] || 0;
     return s;
   });
   createChart('cm2TrendChart', 'line', { labels: data.months, datasets: [{ label: 'Total CM2', data: totalCm2, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 2 }] }, {
@@ -1525,7 +1525,7 @@ function renderCM2Trend(data) {
 function renderCM2PctTrend(data) {
   const avgPct = data.months.map((_, i) => {
     let rev = 0, cm2 = 0;
-    for (const n of TOTAL_OEMS) {
+    for (const n of Object.keys(data.oems)) {
       if (data.oems[n]) { rev += data.oems[n].revenue[i] || 0; cm2 += data.oems[n].cm2[i] || 0; }
     }
     return rev !== 0 ? cm2/rev : 0;
