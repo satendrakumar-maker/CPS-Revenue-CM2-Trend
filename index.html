@@ -53,6 +53,19 @@ body{
 .filter-group label{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
 .filter-group select{padding:9px 14px;border-radius:var(--radius-sm);border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary);font-size:0.85rem;cursor:pointer;min-width:160px;outline:none;transition:var(--transition)}
 .filter-group select:focus{border-color:var(--accent-blue)}
+.month-picker{position:relative;min-width:210px}
+.month-trigger{
+  width:100%;height:43px;padding:9px 38px 9px 14px;border-radius:var(--radius-sm);border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary);font-size:0.85rem;cursor:pointer;outline:none;transition:var(--transition);text-align:left;position:relative
+}
+.month-trigger::after{content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text-secondary);font-size:0.75rem}
+.month-trigger:hover,.month-trigger[aria-expanded="true"]{border-color:var(--accent-blue)}
+.month-menu{
+  display:none;position:absolute;top:calc(100% + 6px);left:0;width:260px;max-height:280px;overflow-y:auto;padding:8px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-sm);box-shadow:var(--shadow);z-index:200
+}
+.month-picker.open .month-menu{display:block}
+.month-option{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;color:var(--text-secondary);font-size:0.84rem;cursor:pointer;transition:var(--transition)}
+.month-option:hover{background:rgba(59,130,246,0.1);color:var(--text-primary)}
+.month-option input{accent-color:var(--accent-blue);width:15px;height:15px;cursor:pointer}
 .filter-actions{display:flex;gap:8px;margin-left:auto;align-items:flex-end}
 
 /* Main Tabs */
@@ -148,6 +161,8 @@ tbody td:first-child{font-weight:600;color:var(--text-primary)}
   .topbar{flex-direction:column;align-items:flex-start;gap:12px}
   .filters-bar{flex-direction:column;align-items:stretch}
   .filter-group select{width:100%}
+  .month-picker{width:100%}
+  .month-menu{width:100%}
   .filter-actions{margin-left:0;width:100%}
   .kpi-grid{grid-template-columns:1fr}
   .chart-body{height:260px}
@@ -211,16 +226,13 @@ tbody td:first-child{font-weight:600;color:var(--text-primary)}
     </select>
   </div>
   <div class="filter-group">
-    <label>OEM</label>
-    <select id="oemFilter">
-      <option value="all">All OEMs</option>
-    </select>
-  </div>
-  <div class="filter-group">
-    <label>Month</label>
-    <select id="monthFilter">
-      <option value="all">All Months</option>
-    </select>
+    <label>Month(s)</label>
+    <div class="month-picker" id="monthPicker">
+      <button class="month-trigger" id="monthTrigger" type="button" aria-expanded="false">
+        <span id="monthSummary">All Months</span>
+      </button>
+      <div class="month-menu" id="monthMenu"></div>
+    </div>
   </div>
   <div class="filter-group">
     <label>Quarter</label>
@@ -498,30 +510,61 @@ const RAW_DATA = {
       "Jun-2026"
     ]
   },
+  "quarters": {
+    "fy2526": {
+      "Q1": [
+        "Apr-2025",
+        "May-2025",
+        "Jun-2025"
+      ],
+      "Q2": [
+        "Jul-2025",
+        "Aug-2025",
+        "Sep-2025"
+      ],
+      "Q3": [
+        "Oct-2025",
+        "Nov-2025",
+        "Dec-2025"
+      ],
+      "Q4": [
+        "Jan-2026",
+        "Feb-2026",
+        "Mar-2026"
+      ]
+    },
+    "fy2627": {
+      "Q1": [
+        "Apr-2026",
+        "May-2026",
+        "Jun-2026"
+      ]
+    }
+  },
   "fy_totals": {
     "overall": {
-      "revenue": 178017762.0,
-      "cm2": 58528505.8798399,
-      "retail_count": 184617.0,
-      "cm2_pct": 0.3287790230720904
+      "revenue": 179058362.0,
+      "cm2": 21709725.0,
+      "retail_count": 17683.0,
+      "cm2_pct": 0.12124384897478287
     },
     "fy2526": {
       "revenue": 142532740.0,
-      "cm2": 48260715.0,
-      "retail_count": 150111.0,
-      "cm2_pct": 0.3385938907790589
+      "cm2": 14331940.0,
+      "retail_count": 12783.0,
+      "cm2_pct": 0.10055191530030223
     },
     "fy2627": {
-      "revenue": 35485022.0,
-      "cm2": 10267790.8798399,
-      "retail_count": 34506.0,
-      "cm2_pct": 0.2893556295340581
+      "revenue": 36525622.0,
+      "cm2": 7377785.0,
+      "retail_count": 4900.0,
+      "cm2_pct": 0.20198930493230205
     }
   },
   "growth": {
-    "revenue_growth_pct": 24.9,
-    "retail_growth_pct": 22.99,
-    "cm2_growth_pct": 21.28
+    "revenue_growth_pct": -74.37,
+    "retail_growth_pct": -61.67,
+    "cm2_growth_pct": -48.52
   },
   "oems": {
     "Bajaj (Incl. KTM & TRM)": {
@@ -818,9 +861,9 @@ const RAW_DATA = {
         5205315.0,
         5582065.0,
         5868395.0,
-        5642345.0,
-        5675225.0,
-        6502705.0
+        5971825.0,
+        6006625.0,
+        6882425.0
       ],
       "retail_count": [
         9018.0,
@@ -852,9 +895,9 @@ const RAW_DATA = {
         985413.0,
         642141.0,
         1298624.0,
-        1042193.0,
-        534776.0,
-        1711901.0
+        1371673.0,
+        866176.0,
+        2091621.0
       ],
       "cm2_pct": [
         0.37398325813903416,
@@ -869,16 +912,16 @@ const RAW_DATA = {
         0.18930900435420334,
         0.11503646052133037,
         0.22129117075452487,
-        0.18470919449271536,
-        0.09422992039963174,
-        0.26325982802541403
+        0.2297,
+        0.1442,
+        0.3039
       ]
     },
     "Revolt": {
       "revenue": [
-        0,
-        0,
-        0,
+        null,
+        null,
+        null,
         51293.0,
         132729.0,
         120580.0,
@@ -893,9 +936,9 @@ const RAW_DATA = {
         106040.0
       ],
       "retail_count": [
-        0,
-        0,
-        0,
+        null,
+        null,
+        null,
         15.0,
         37.0,
         34.0,
@@ -910,9 +953,9 @@ const RAW_DATA = {
         30.0
       ],
       "cm2": [
-        0,
-        0,
-        0,
+        null,
+        null,
+        null,
         -30943.0,
         16247.0,
         38820.0,
@@ -927,9 +970,9 @@ const RAW_DATA = {
         51715.0
       ],
       "cm2_pct": [
-        0,
-        0,
-        0,
+        null,
+        null,
+        null,
         -0.6032597040531846,
         0.12240731113773178,
         0.3219439376347653,
@@ -944,14 +987,14 @@ const RAW_DATA = {
         0.48769332327423615
       ]
     },
-    "Jawa (Incl. Manpower)": {
+    "Jawa (incl. Manpower)": {
       "revenue": [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
         260614.0,
         321497.0,
         312004.0,
@@ -963,12 +1006,12 @@ const RAW_DATA = {
         218125.0
       ],
       "retail_count": [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
         74.0,
         67.0,
         64.0,
@@ -980,12 +1023,12 @@ const RAW_DATA = {
         74.0
       ],
       "cm2": [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
         188399.0,
         166143.0,
         180727.0,
@@ -997,12 +1040,12 @@ const RAW_DATA = {
         101164.0
       ],
       "cm2_pct": [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
         0.7229043719830861,
         0.5167793167587877,
         0.5792457789002705,
@@ -1014,7 +1057,7 @@ const RAW_DATA = {
         0.463789111747851
       ]
     },
-    "TVS: Only Iqube": {
+    "TVS:Only Iqube": {
       "revenue": [
         584305.0,
         557590.0,
@@ -1028,9 +1071,9 @@ const RAW_DATA = {
         497995.0,
         530875.0,
         695960.0,
-        826795.0,
-        828165.0,
-        1113125.0
+        875075.0,
+        876525.0,
+        1178125.0
       ],
       "retail_count": [
         853.0,
@@ -1084,7 +1127,77 @@ const RAW_DATA = {
         0.8889
       ]
     },
-    "Bajaj + Chetak": {
+    "TVS:ICE Only": {
+      "revenue": [
+        5593025.0,
+        5271760.0,
+        5462190.0,
+        4997760.0,
+        5425885.0,
+        5777975.0,
+        13531490.0,
+        6943845.0,
+        4232615.0,
+        4707320.0,
+        5051190.0,
+        5172435.0,
+        5096750.0,
+        5130100.0,
+        5704300.0
+      ],
+      "retail_count": [
+        8165.0,
+        7696.0,
+        7974.0,
+        7296.0,
+        7921.0,
+        8435.0,
+        19754.0,
+        10137.0,
+        6179.0,
+        6872.0,
+        7374.0,
+        7551.0,
+        7030.0,
+        7076.0,
+        7868.0
+      ],
+      "cm2": [
+        1792418.0,
+        524428.0,
+        -293949.0,
+        -153874.0,
+        614383.0,
+        873217.0,
+        8549099.0,
+        3014778.0,
+        78190.0,
+        549481.0,
+        227883.0,
+        1068391.0,
+        834299.0,
+        578702.0,
+        1102207.0
+      ],
+      "cm2_pct": [
+        0.3204738044260485,
+        0.09947873196048379,
+        -0.05381522795801684,
+        -0.030788593289793827,
+        0.11323185065662099,
+        0.1511285528234373,
+        0.6317928772071664,
+        0.4341655091667513,
+        0.018473213368095136,
+        0.11672905177468283,
+        0.04511471554227816,
+        0.20655474645887284,
+        0.16369235297002993,
+        0.11280520847546831,
+        0.1932238837368301
+      ]
+    },
+    "TVS:Bajaj+Chetak": {
       "revenue": [
         1581000.0,
         1583000.0,
@@ -1153,77 +1266,77 @@ const RAW_DATA = {
         0.19134370015948962,
         0.08533436652460287
       ]
-    },
-    "TVS ICE": {
-      "revenue": [
-        5593025.0,
-        5271760.0,
-        5462190.0,
-        4997760.0,
-        5425885.0,
-        5777975.0,
-        13531490.0,
-        6943845.0,
-        4232615.0,
-        4707320.0,
-        5051190.0,
-        5172435.0,
-        4815550.0,
-        4847060.0,
-        5389580.0
-      ],
-      "retail_count": [
-        8165.0,
-        7696.0,
-        7974.0,
-        7296.0,
-        7921.0,
-        8435.0,
-        19754.0,
-        10137.0,
-        6179.0,
-        6872.0,
-        7374.0,
-        7551.0,
-        7030.0,
-        7076.0,
-        7868.0
-      ],
-      "cm2": [
-        1792418.0,
-        524428.0,
-        -293949.0,
-        -153874.0,
-        614383.0,
-        873217.0,
-        8549099.0,
-        3014778.0,
-        78190.0,
-        549481.0,
-        227883.0,
-        1068391.0,
-        504819.0,
-        247302.0,
-        722487.0
-      ],
-      "cm2_pct": [
-        0.3204738044260485,
-        0.09947873196048379,
-        -0.05381522795801684,
-        -0.030788593289793827,
-        0.11323185065662099,
-        0.1511285528234373,
-        0.6317928772071664,
-        0.4341655091667513,
-        0.018473213368095136,
-        0.11672905177468283,
-        0.04511471554227816,
-        0.20655474645887284,
-        0.10483101618714373,
-        0.05102103130557493,
-        0.13405256068190843
-      ]
     }
+  },
+  "overall_series": {
+    "revenue": [
+      8608185.0,
+      9046992.0,
+      9837684.0,
+      9476967.0,
+      10454741.0,
+      12279361.0,
+      23980902.0,
+      12224714.0,
+      9225091.0,
+      11682843.0,
+      10994977.0,
+      14720283.0,
+      11808224.0,
+      11818380.0,
+      12899018.0
+    ],
+    "retail_count": [
+      393.0,
+      611.0,
+      742.0,
+      801.0,
+      858.0,
+      1133.0,
+      1493.0,
+      925.0,
+      934.0,
+      1178.0,
+      1195.0,
+      2520.0,
+      1515.0,
+      1704.0,
+      1681.0
+    ],
+    "cm2": [
+      49914.0,
+      224206.0,
+      463151.0,
+      454218.0,
+      932436.0,
+      1747113.0,
+      2382069.0,
+      1020457.0,
+      987518.0,
+      1012417.0,
+      1228261.0,
+      3830180.0,
+      2367976.0,
+      2116826.0,
+      2892983.0
+    ],
+    "cm2_pct": [
+      0.005798434861704296,
+      0.024782380707311338,
+      0.047079271909933273,
+      0.04792862526586829,
+      0.08918786223398552,
+      0.1422804492839652,
+      0.09933191837404615,
+      0.08347491810442355,
+      0.10704696571556856,
+      0.08665844435297128,
+      0.111711102260605,
+      0.26019744321491645,
+      0.20053616869056684,
+      0.17911304256590158,
+      0.22427932110800994
+    ]
   },
   "colors": {
     "Bajaj (Incl. KTM & TRM)": "#E74C3C",
@@ -1232,10 +1345,10 @@ const RAW_DATA = {
     "OLA Only CPS": "#1ABC9C",
     "TVS: All": "#9B59B6",
     "Revolt": "#E67E22",
-    "Jawa (Incl. Manpower)": "#2ECC71",
-    "TVS: Only Iqube": "#34495E",
-    "Bajaj + Chetak": "#FF6B6B",
-    "TVS ICE": "#00D2D3"
+    "Jawa (incl. Manpower)": "#2ECC71",
+    "TVS:Only Iqube": "#34495E",
+    "TVS:ICE Only": "#FF6B6B",
+    "TVS:Bajaj+Chetak": "#00D2D3"
   }
 };
 
@@ -1259,8 +1372,7 @@ const TOTAL_OEMS = ['Bajaj (Incl. KTM & TRM)','Chetak Only','Ather','OLA Only CP
 // STATE
 // ═══════════════════════════════════════════════════════════════
 let currentFY = 'overall';
-let currentOEM = 'all';
-let currentMonth = 'all';
+let currentMonths = ['all'];
 let currentQuarter = 'all';
 let selectedOEMwise = 'Bajaj (Incl. KTM & TRM)';
 let chartRegistry = {};
@@ -1277,6 +1389,9 @@ const fmt = {
   pct: v => (v*100).toFixed(1) + '%',
 };
 
+const num = v => Number(v) || 0;
+const sumValues = values => values.reduce((total, value) => total + num(value), 0);
+
 // ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
@@ -1290,20 +1405,19 @@ function init() {
 }
 
 function populateFilters() {
-  const oemSel = document.getElementById('oemFilter');
-  for (const n of Object.keys(RAW_DATA.oems)) {
-    const opt = document.createElement('option');
-    opt.value = n;
-    opt.textContent = OEM_NAMES[n] || n;
-    oemSel.appendChild(opt);
-  }
-  const monthSel = document.getElementById('monthFilter');
+  const monthMenu = document.getElementById('monthMenu');
+  monthMenu.appendChild(createMonthOption('all', 'All Months', true));
   for (const m of RAW_DATA.months) {
-    const opt = document.createElement('option');
-    opt.value = m;
-    opt.textContent = m;
-    monthSel.appendChild(opt);
+    monthMenu.appendChild(createMonthOption(m, m, false));
   }
+  updateMonthSummary();
+}
+
+function createMonthOption(value, label, checked) {
+  const item = document.createElement('label');
+  item.className = 'month-option';
+  item.innerHTML = '<input type="checkbox" value="' + value + '"' + (checked ? ' checked' : '') + '> <span>' + label + '</span>';
+  return item;
 }
 
 function setupListeners() {
@@ -1318,15 +1432,16 @@ function setupListeners() {
   });
 
   document.getElementById('fyFilter').addEventListener('change', e => { currentFY = e.target.value; renderAll(); });
-  document.getElementById('oemFilter').addEventListener('change', e => { currentOEM = e.target.value; renderAll(); });
-  document.getElementById('monthFilter').addEventListener('change', e => { currentMonth = e.target.value; renderAll(); });
   document.getElementById('quarterFilter').addEventListener('change', e => { currentQuarter = e.target.value; renderAll(); });
+  document.getElementById('monthTrigger').addEventListener('click', toggleMonthPicker);
+  document.getElementById('monthMenu').addEventListener('change', handleMonthChange);
+  document.addEventListener('click', closeMonthPickerOnOutsideClick);
 
   document.getElementById('resetFilters').addEventListener('click', () => {
-    currentFY='overall'; currentOEM='all'; currentMonth='all'; currentQuarter='all';
+    currentFY='overall'; currentMonths=['all']; currentQuarter='all';
     document.getElementById('fyFilter').value='overall';
-    document.getElementById('oemFilter').value='all';
-    document.getElementById('monthFilter').value='all';
+    setMonthChecks(['all']);
+    updateMonthSummary();
     document.getElementById('quarterFilter').value='all';
     renderAll();
   });
@@ -1370,9 +1485,11 @@ function getFilteredData() {
   const startIdx = RAW_DATA.months.indexOf(months[0]);
 
   let indices = [];
-  if (currentMonth !== 'all') {
-    const mi = RAW_DATA.months.indexOf(currentMonth);
-    if (mi >= startIdx && mi < startIdx + months.length) indices = [mi - startIdx];
+  if (!currentMonths.includes('all')) {
+    indices = currentMonths
+      .map(month => RAW_DATA.months.indexOf(month))
+      .filter(mi => mi >= startIdx && mi < startIdx + months.length)
+      .map(mi => mi - startIdx);
   } else {
     indices = Array.from({length: months.length}, (_, i) => i);
   }
@@ -1383,9 +1500,11 @@ function getFilteredData() {
     indices = indices.filter(i => q.includes(i));
   }
 
-  const result = { months: indices.map(i => months[i]), oems: {} };
-  const oemList = currentOEM === 'all' ? Object.keys(RAW_DATA.oems) : [currentOEM];
-  for (const name of oemList) {
+  const result = { months: indices.map(i => months[i]), oems: {}, overall_series: {} };
+  for (const metric of ['revenue','retail_count','cm2','cm2_pct']) {
+    result.overall_series[metric] = indices.map(i => RAW_DATA.overall_series[metric][startIdx + i]);
+  }
+  for (const name of Object.keys(RAW_DATA.oems)) {
     result.oems[name] = {
       revenue: indices.map(i => RAW_DATA.oems[name].revenue[startIdx + i]),
       retail_count: indices.map(i => RAW_DATA.oems[name].retail_count[startIdx + i]),
@@ -1394,6 +1513,50 @@ function getFilteredData() {
     };
   }
   return result;
+}
+
+function toggleMonthPicker() {
+  const picker = document.getElementById('monthPicker');
+  const isOpen = picker.classList.toggle('open');
+  document.getElementById('monthTrigger').setAttribute('aria-expanded', String(isOpen));
+}
+
+function closeMonthPickerOnOutsideClick(e) {
+  const picker = document.getElementById('monthPicker');
+  if (!picker.contains(e.target)) {
+    picker.classList.remove('open');
+    document.getElementById('monthTrigger').setAttribute('aria-expanded', 'false');
+  }
+}
+
+function handleMonthChange(e) {
+  const changedValue = e.target.value;
+  const selected = Array.from(document.querySelectorAll('#monthMenu input:checked')).map(input => input.value);
+  if (changedValue === 'all' || selected.length === 0 || selected.includes('all')) {
+    setMonthChecks(['all']);
+    return ['all'];
+  }
+  currentMonths = selected;
+  updateMonthSummary();
+  renderAll();
+}
+
+function setMonthChecks(values) {
+  currentMonths = values;
+  document.querySelectorAll('#monthMenu input').forEach(input => {
+    input.checked = values.includes(input.value);
+  });
+}
+
+function updateMonthSummary() {
+  const summary = document.getElementById('monthSummary');
+  if (currentMonths.includes('all')) {
+    summary.textContent = 'All Months';
+  } else if (currentMonths.length === 1) {
+    summary.textContent = currentMonths[0];
+  } else {
+    summary.textContent = currentMonths.length + ' months selected';
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1447,15 +1610,12 @@ function renderExecKPIs(data) {
   const months = data.months;
   if (months.length === 0) return;
 
-  let totalRev = 0, totalCm2 = 0, totalRet = 0;
-  for (const name of Object.keys(data.oems)) {
-    if (data.oems[name]) {
-      totalRev += data.oems[name].revenue.reduce((a,b)=>a+b,0);
-      totalCm2 += data.oems[name].cm2.reduce((a,b)=>a+b,0);
-      totalRet += data.oems[name].retail_count.reduce((a,b)=>a+b,0);
-    }
-  }
-  const avgPct = totalRev !== 0 ? totalCm2/totalRev : 0;
+  const fullPeriodSelected = currentMonths.includes('all') && currentQuarter === 'all';
+  const periodTotals = fullPeriodSelected ? RAW_DATA.fy_totals[currentFY] : null;
+  const totalRev = periodTotals ? num(periodTotals.revenue) : sumValues(data.overall_series.revenue);
+  const totalCm2 = periodTotals ? num(periodTotals.cm2) : sumValues(data.overall_series.cm2);
+  const totalRet = periodTotals ? num(periodTotals.retail_count) : sumValues(data.overall_series.retail_count);
+  const avgPct = periodTotals ? num(periodTotals.cm2_pct) : (totalRev !== 0 ? totalCm2/totalRev : 0);
   const g = RAW_DATA.growth;
 
   document.getElementById('execRevenue').textContent = fmt.rev(totalRev);
@@ -1497,11 +1657,7 @@ function renderRevTrend(data) {
 }
 
 function renderRetTrend(data) {
-  const totalRetail = data.months.map((_, i) => {
-    let s = 0;
-    for (const n of Object.keys(data.oems)) if (data.oems[n]) s += data.oems[n].retail_count[i] || 0;
-    return s;
-  });
+  const totalRetail = data.overall_series.retail_count.map(num);
   createChart('retTrendChart', 'bar', { labels: data.months, datasets: [{ label: 'Total Retail', data: totalRetail, backgroundColor: '#f59e0b', borderRadius: 6 }] }, {
     ...commonOptions(),
     plugins: { ...commonOptions().plugins, tooltip: { callbacks: { label: ctx => 'Retail: ' + fmt.ret(ctx.parsed.y) } } },
@@ -1510,11 +1666,7 @@ function renderRetTrend(data) {
 }
 
 function renderCM2Trend(data) {
-  const totalCm2 = data.months.map((_, i) => {
-    let s = 0;
-    for (const n of Object.keys(data.oems)) if (data.oems[n]) s += data.oems[n].cm2[i] || 0;
-    return s;
-  });
+  const totalCm2 = data.overall_series.cm2.map(num);
   createChart('cm2TrendChart', 'line', { labels: data.months, datasets: [{ label: 'Total CM2', data: totalCm2, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 2 }] }, {
     ...commonOptions(),
     plugins: { ...commonOptions().plugins, tooltip: { callbacks: { label: ctx => 'CM2: ' + fmt.cm2(ctx.parsed.y) } } },
@@ -1523,13 +1675,7 @@ function renderCM2Trend(data) {
 }
 
 function renderCM2PctTrend(data) {
-  const avgPct = data.months.map((_, i) => {
-    let rev = 0, cm2 = 0;
-    for (const n of Object.keys(data.oems)) {
-      if (data.oems[n]) { rev += data.oems[n].revenue[i] || 0; cm2 += data.oems[n].cm2[i] || 0; }
-    }
-    return rev !== 0 ? cm2/rev : 0;
-  });
+  const avgPct = data.overall_series.cm2_pct.map(num);
   createChart('cm2PctTrendChart', 'line', { labels: data.months, datasets: [{ label: 'Avg CM2 %', data: avgPct, borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.1)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 2 }] }, {
     ...commonOptions(),
     plugins: { ...commonOptions().plugins, tooltip: { callbacks: { label: ctx => 'CM2%: ' + fmt.pct(ctx.parsed.y) } } },
@@ -1539,7 +1685,7 @@ function renderCM2PctTrend(data) {
 
 function renderOEMCompare(data) {
   const labels = Object.keys(data.oems).map(n => OEM_NAMES[n] || n);
-  const values = Object.keys(data.oems).map(n => data.oems[n].revenue.reduce((a,b)=>a+b,0));
+  const values = Object.keys(data.oems).map(n => sumValues(data.oems[n].revenue));
   const bgColors = Object.keys(data.oems).map(n => RAW_DATA.colors[n] || '#999');
   createChart('oemCompareChart', 'bar', { labels, datasets: [{ label: 'Total Revenue', data: values, backgroundColor: bgColors, borderRadius: 8 }] }, {
     ...commonOptions(), indexAxis: 'y',
@@ -1577,8 +1723,8 @@ function renderTable(data) {
   tbody.innerHTML = '';
   for (const name of Object.keys(oems)) {
     const d = oems[name];
-    const totalRev = d.revenue.reduce((a,b)=>a+b,0);
-    const totalCm2 = d.cm2.reduce((a,b)=>a+b,0);
+    const totalRev = sumValues(d.revenue);
+    const totalCm2 = sumValues(d.cm2);
     const cm2pct = totalRev !== 0 ? totalCm2/totalRev : 0;
     let row = '<td><span class="oem-dot" style="background:' + (RAW_DATA.colors[name] || '#999') + '"></span> ' + (OEM_NAMES[name] || name) + '</td>';
     for (const rev of d.revenue) row += '<td class="num">' + fmt.rev(rev) + '</td>';
@@ -1635,9 +1781,9 @@ function renderOEMCharts() {
   const color = RAW_DATA.colors[selectedOEMwise] || '#3b82f6';
   const name = OEM_NAMES[selectedOEMwise] || selectedOEMwise;
 
-  const totalRev = d.revenue.reduce((a,b)=>a+b,0);
-  const totalRet = d.retail_count.reduce((a,b)=>a+b,0);
-  const totalCm2 = d.cm2.reduce((a,b)=>a+b,0);
+  const totalRev = sumValues(d.revenue);
+  const totalRet = sumValues(d.retail_count);
+  const totalCm2 = sumValues(d.cm2);
   const avgPct = totalRev !== 0 ? totalCm2/totalRev : 0;
 
   document.getElementById('oemRevenue').textContent = fmt.rev(totalRev);
@@ -1680,7 +1826,9 @@ function renderOEMCharts() {
   const growthData = Object.keys(data.oems).map(n => {
     const rev = data.oems[n].revenue;
     if (rev.length < 2) return 0;
-    return ((rev[rev.length-1] - rev[0]) / Math.abs(rev[0])) * 100;
+    const first = num(rev[0]);
+    if (first === 0) return 0;
+    return ((num(rev[rev.length-1]) - first) / Math.abs(first)) * 100;
   });
   const growthLabels = Object.keys(data.oems).map(n => OEM_NAMES[n] || n);
 
@@ -1700,9 +1848,9 @@ function exportCSV() {
   let csv = 'OEM,Metric,' + months.join(',') + ',Total\n';
   for (const name of Object.keys(data.oems)) {
     const d = data.oems[name];
-    csv += '"' + name + '",Revenue,' + d.revenue.join(',') + ',' + d.revenue.reduce((a,b)=>a+b,0) + '\n';
-    csv += '"' + name + '",Retail,' + d.retail_count.join(',') + ',' + d.retail_count.reduce((a,b)=>a+b,0) + '\n';
-    csv += '"' + name + '",CM2,' + d.cm2.join(',') + ',' + d.cm2.reduce((a,b)=>a+b,0) + '\n';
+    csv += '"' + name + '",Revenue,' + d.revenue.join(',') + ',' + sumValues(d.revenue) + '\n';
+    csv += '"' + name + '",Retail,' + d.retail_count.join(',') + ',' + sumValues(d.retail_count) + '\n';
+    csv += '"' + name + '",CM2,' + d.cm2.join(',') + ',' + sumValues(d.cm2) + '\n';
   }
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
